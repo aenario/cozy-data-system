@@ -73,7 +73,13 @@ action 'results', ->
 # PUT /request/:type/:req_name/destroy
 action 'removeResults', ->
     removeFunc = (res, callback) ->
-        db.remove res.value._id, res.value._rev, callback
+        db.remove res.value._id, res.value._rev, (err) ->
+            if err 
+                callback err
+            else
+                event = "#{rev.value.docType or 'null'}.delete"
+                compound.app.feed.publish event
+                callback()
 
     removeAllDocs = (res) ->
         async.forEachSeries res, removeFunc, (err) ->
