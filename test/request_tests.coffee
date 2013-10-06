@@ -1,5 +1,6 @@
 should = require('chai').Should()
 async = require('async')
+axon  = require('axon')
 Client = require('request-json').JsonClient
 helpers = require('./helpers')
 
