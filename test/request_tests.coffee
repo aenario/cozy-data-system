@@ -39,6 +39,15 @@ describe "Request handling tests", ->
         docs = ({'type':'dumb_doc', 'num':num} for num in [0..100])
         db.save docs, done
     before helpers.instantiateApp
+    before (done) ->
+        @subscriber = new helpers.Subscriber()
+        @axonSock = axon.socket 'sub-emitter'
+        @axonSock.on 'null.*', @subscriber.listener
+        @axonSock.connect 9105, done
+
+    after ->
+        @axonSock.close()
+        @axonSock = null
     after helpers.after db
 
     describe "View creation", ->
@@ -223,6 +232,9 @@ describe "Request handling tests", ->
 
             it "Then I should have 0 documents returned", ->
                 @body.should.have.length 0
+                
+            it "And a relatime event should have been fired", ->
+                @subscriber.haveBeenCalled('delete', @idT).should.be.ok
 
             it "When I send a request to delete a doc from even_num with complex query", (done) ->
                 client.put "request/all/even_num_array/destroy/", \
