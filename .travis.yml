@@ -13,6 +13,7 @@ env:
         - VERSION=0.10
         - VERSION=0.8
 before_install:
-    - npm install n coffee-script -g
-    - n $VERSION
+    - sudo sed -i -e 's/^Defaults\tsecure_path.*$//' /etc/sudoers
+    - sudo npm install n coffee-script -g
+    - sudo n $VERSION
     - node --version
