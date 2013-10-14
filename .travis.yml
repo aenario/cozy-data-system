@@ -13,6 +13,6 @@ env:
         - VERSION=0.10
         - VERSION=0.8
 before_install:
-    - nvm install $VERSION
+    - npm install n coffee-script -g
+    - n $VERSION
     - node --version
-    - npm install coffee-script -g
