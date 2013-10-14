@@ -1,14 +1,18 @@
 language: node_js
 node_js:
     - "0.10"
-    - "0.8"
-    - "0.8.21"
-    - "0.8.18"
-    - "0.8.9"
 services:
     - couchdb
 env:
     global:
         - NODE_ENV=test
+    matrix:
+        - VERSION=0.8.9
+        - VERSION=0.8.21
+        - VERSION=0.8.18
+        - VERSION=0.10
+        - VERSION=0.8
 before_install:
+    - nvm install $VERSION
+    - node --version
     - npm install coffee-script -g
