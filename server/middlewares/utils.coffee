@@ -5,6 +5,7 @@ db = require('../helpers/db_connect_helper').db_connect()
 helpers = require '../helpers/utils'
 checkPermissions = helpers.checkPermissions
 deleteFiles = helpers.deleteFiles
+incrementCount = helpers.incrementCount
 
 # Lock document to avoid multiple modifications at the same time.
 module.exports.lockRequest = (req, res, next) ->
@@ -56,3 +57,6 @@ module.exports.checkPermissionsByBody = (req, res, next) ->
 # Get the permission from the request's params
 module.exports.checkPermissionsByType = (req, res, next) ->
     checkPermissions req, req.params.type, next
+
+module.exports.incrementCount = (req, res, next) ->
+    incrementCount next

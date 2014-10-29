@@ -28,22 +28,22 @@ module.exports = {
     get: data.index
   },
   'data/': {
-    post: [utils.checkPermissionsByBody, data.encryptPassword, data.create]
+    post: [utils.checkPermissionsByBody, utils.incrementCount, data.encryptPassword, data.create]
   },
   'data/:id/': {
     get: [utils.getDoc, utils.checkPermissionsByDoc, data.decryptPassword, data.find],
-    post: [utils.checkPermissionsByBody, data.encryptPassword, data.create],
-    put: [utils.lockRequest, utils.checkPermissionsByBody, utils.getDoc, data.encryptPassword, data.update, utils.unlockRequest],
-    "delete": [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, data["delete"], utils.unlockRequest]
+    post: [utils.checkPermissionsByBody, utils.incrementCount, data.encryptPassword, data.create],
+    put: [utils.lockRequest, utils.checkPermissionsByBody, utils.incrementCount, utils.getDoc, data.encryptPassword, data.update, utils.unlockRequest],
+    "delete": [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, utils.incrementCount, data["delete"], utils.unlockRequest]
   },
   'data/exist/:id/': {
     get: data.exist
   },
   'data/upsert/:id/': {
-    put: [utils.lockRequest, utils.checkPermissionsByBody, data.encryptPassword, data.upsert, utils.unlockRequest]
+    put: [utils.lockRequest, utils.checkPermissionsByBody, utils.incrementCount, data.encryptPassword, data.upsert, utils.unlockRequest]
   },
   'data/merge/:id/': {
-    put: [utils.lockRequest, utils.checkPermissionsByBody, utils.getDoc, utils.checkPermissionsByDoc, data.encryptPassword2, data.merge, utils.unlockRequest]
+    put: [utils.lockRequest, utils.checkPermissionsByBody, utils.getDoc, utils.checkPermissionsByDoc, utils.incrementCount, data.encryptPassword2, data.merge, utils.unlockRequest]
   },
   'request/:type/:req_name/': {
     post: [utils.checkPermissionsByType, requests.results],
@@ -60,18 +60,18 @@ module.exports = {
     get: requests.doctypes
   },
   'data/:id/attachments/': {
-    post: [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, attachments.add, utils.unlockRequest]
+    post: [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, utils.incrementCount, attachments.add, utils.unlockRequest]
   },
   'data/:id/attachments/:name': {
     get: [utils.getDoc, utils.checkPermissionsByDoc, attachments.get],
-    "delete": [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, attachments.remove, utils.unlockRequest]
+    "delete": [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, utils.incrementCount, attachments.remove, utils.unlockRequest]
   },
   'data/:id/binaries/': {
-    post: [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, binaries.add, utils.unlockRequest]
+    post: [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, utils.incrementCount, binaries.add, utils.unlockRequest]
   },
   'data/:id/binaries/:name': {
     get: [utils.getDoc, utils.checkPermissionsByDoc, binaries.get],
-    "delete": [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, binaries.remove, utils.unlockRequest]
+    "delete": [utils.lockRequest, utils.getDoc, utils.checkPermissionsByDoc, utils.incrementCount, binaries.remove, utils.unlockRequest]
   },
   'connectors/bank/:name/': {
     post: connectors.bank
@@ -83,7 +83,7 @@ module.exports = {
     post: [utils.checkPermissionsFactory('device'), devices.create]
   },
   'device/:id/': {
-    "delete": [utils.checkPermissionsFactory('device'), utils.lockRequest, utils.getDoc, devices.remove, utils.unlockRequest]
+    "delete": [utils.checkPermissionsFactory('device'), utils.lockRequest, utils.getDoc, utils.incrementCount, devices.remove, utils.unlockRequest]
   },
   'data/index/clear-all/': {
     'delete': [utils.checkPermissionsFactory('all'), indexer.removeAll]
@@ -111,7 +111,7 @@ module.exports = {
     post: [utils.checkPermissionsFactory('User'), user.create]
   },
   'user/merge/:id': {
-    put: [utils.lockRequest, utils.checkPermissionsFactory('User'), utils.getDoc, user.merge, utils.unlockRequest]
+    put: [utils.lockRequest, utils.checkPermissionsFactory('User'), utils.getDoc, utils.incrementCount, user.merge, utils.unlockRequest]
   },
   'accounts/password/': {
     post: [account.checkPermissions, account.initializeKeys],

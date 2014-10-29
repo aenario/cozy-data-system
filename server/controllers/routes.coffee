@@ -21,6 +21,7 @@ module.exports =
     # Data management
     'data/': post: [
             utils.checkPermissionsByBody
+            utils.incrementCount
             data.encryptPassword
             data.create
         ]
@@ -33,12 +34,14 @@ module.exports =
         ]
         post: [
             utils.checkPermissionsByBody
+            utils.incrementCount
             data.encryptPassword
             data.create
         ]
         put: [
             utils.lockRequest
             utils.checkPermissionsByBody
+            utils.incrementCount
             utils.getDoc
             data.encryptPassword
             data.update
@@ -48,6 +51,7 @@ module.exports =
             utils.lockRequest
             utils.getDoc
             utils.checkPermissionsByDoc
+            utils.incrementCount
             data.delete
             utils.unlockRequest
         ]
@@ -55,6 +59,7 @@ module.exports =
     'data/upsert/:id/': put: [
         utils.lockRequest
         utils.checkPermissionsByBody
+        utils.incrementCount
         data.encryptPassword
         data.upsert
         utils.unlockRequest
@@ -64,6 +69,7 @@ module.exports =
         utils.checkPermissionsByBody
         utils.getDoc
         utils.checkPermissionsByDoc
+        utils.incrementCount
         data.encryptPassword2
         data.merge
         utils.unlockRequest
@@ -101,6 +107,7 @@ module.exports =
         utils.lockRequest
         utils.getDoc
         utils.checkPermissionsByDoc
+        utils.incrementCount
         attachments.add
         utils.unlockRequest
     ]
@@ -110,6 +117,7 @@ module.exports =
             utils.lockRequest
             utils.getDoc
             utils.checkPermissionsByDoc
+            utils.incrementCount
             attachments.remove
             utils.unlockRequest
         ]
@@ -118,6 +126,7 @@ module.exports =
         utils.lockRequest
         utils.getDoc
         utils.checkPermissionsByDoc
+        utils.incrementCount
         binaries.add
         utils.unlockRequest
     ]
@@ -127,6 +136,7 @@ module.exports =
             utils.lockRequest
             utils.getDoc
             utils.checkPermissionsByDoc
+            utils.incrementCount
             binaries.remove
             utils.unlockRequest
         ]
@@ -141,6 +151,7 @@ module.exports =
         utils.checkPermissionsFactory('device')
         utils.lockRequest
         utils.getDoc
+        utils.incrementCount
         devices.remove
         utils.unlockRequest
     ]
@@ -187,6 +198,7 @@ module.exports =
         utils.lockRequest
         utils.checkPermissionsFactory('User')
         utils.getDoc
+        utils.incrementCount
         user.merge
         utils.unlockRequest
     ]
