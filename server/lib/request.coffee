@@ -11,6 +11,20 @@ randomString = (length) ->
 productionOrTest = process.env.NODE_ENV is "production" or
     process.env.NODE_ENV is "test"
 
+# Return classic view to retrieve all document with docType equal to <docType>
+classicView = (docType) ->
+    view =
+        "map":
+            """function (doc) {
+                  if (doc.docType.toLowerCase() === "#{docType}") {
+                    filter = function (doc) {
+                      return emit(doc._id, doc);
+                    };
+                    filter(doc);
+                  }
+                }"""
+    return JSON.stringify view
+
 ## function create (app, req, views, newView, callback)
 ## @app {String} application name
 ## @req {Object} contains type and request name
@@ -24,8 +38,11 @@ module.exports.create = (app, req, views, newView, callback) =>
         request[app] ?= {}
         request[app]["#{req.type}/#{req.req_name}"] = path
         callback null, path
-
-    if productionOrTest
+    # All view management
+    if req.req_name is 'all' and JSON.stringify(newView) is classicView(req.type)
+        storeRam 'all'
+    # Conflict management
+    else if productionOrTest
         # If classic view already exists and view is different :
         # store in app-req.req_name
         if views?[req.req_name]? and
@@ -110,27 +127,41 @@ module.exports.init = (callback) =>
                 if err?
                     console.log "[Definition] err: " + err.message
 
-    if productionOrTest
-        recoverApp (apps) =>
-            recoverDesignDocs (docs) =>
-                for doc in docs
-                    for view, body of doc.views
-                        # Search if view start with application name
-                        if view.indexOf('-') isnt -1 and view.split('-')[0] in apps
-                            app = view.split('-')[0]
-                            type = doc._id.substr 8, doc._id.length-1
-                            req_name = view.split('-')[1]
-                            request[app] = {} if not request[app]
-                            request[app]["#{type}/#{req_name}"] = view
-                        if view.indexOf('undefined-') is 0 or
-                            (view.indexOf('-') isnt -1 and not (view.split('-')[0] in apps))
-                                delete doc.views[view]
-                                db.merge doc._id, views: doc.views, \
-                                (err, response) ->
-                                    if err?
-                                        console.log "[Definition] err: " + err.message
-                                    removeEmptyView(doc)
-                    removeEmptyView(doc)
-                callback null
-    else
-        callback null
+    recoverApp (apps) =>
+        recoverDesignDocs (docs) =>
+            for doc in docs
+                for view, body of doc.views
+                    type = doc._id.substr 8, doc._id.length-1
+                    # Search if view start with application name
+                    if view.indexOf('-') isnt -1 and view.split('-')[0] in apps
+                        # Update view in RAM
+                        app = view.split('-')[0]
+                        req_name = view.split('-')[1]
+                        request[app] = {} if not request[app]
+                        request[app]["#{type}/#{req_name}"] = view
+                    # Clean undefined view or view of uninstalled application
+                    if view.indexOf('undefined-') is 0 or
+                        (view.indexOf('-') isnt -1 and not (view.split('-')[0] in apps))
+                            delete doc.views[view]
+                            db.merge doc._id, views: doc.views, \
+                            (err, response) ->
+                                if err?
+                                    console.log "[Definition] err: " + err.message
+                                removeEmptyView(doc)
+                    # Remove all views managed by all/byDocType
+                    if view is "all"
+                        body = JSON.stringify(body)
+                        allView = classicView(type)
+                        body.replace '\\', ''
+                        allView.replace '\\', ''
+                        body.replace '"', "'"
+                        allView.replace '"', "'"
+                        if body is allView
+                            delete doc.views[view]
+                            db.merge doc._id, views: doc.views, \
+                            (err, response) ->
+                                if err?
+                                    console.log "[Definition] err: " + err.message
+                                removeEmptyView(doc)
+                removeEmptyView(doc)
+            callback null

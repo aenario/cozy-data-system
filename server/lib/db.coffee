@@ -197,6 +197,18 @@ module.exports = (callback) ->
                         }
                         """
 
+        db.get '_design/all', (err, doc) =>
+            if err and err.error is "not_found"
+
+                db.save '_design/all',
+                    byDocType:
+                        map: """
+                        function(doc) {
+                            if(doc.docType) {
+                                return emit(doc.docType.toLowerCase(), doc);
+                            }
+                        }
+                        """
     feed_start = -> feed.startListening db
 
     db_ensure () ->

@@ -197,13 +197,24 @@ module.exports = function(callback) {
         }
       };
     })(this));
-    return db.get('_design/tags', (function(_this) {
+    db.get('_design/tags', (function(_this) {
       return function(err, doc) {
         if (err && err.error === "not_found") {
           return db.save('_design/tags', {
             all: {
               map: "function (doc) {\nvar _ref;\nreturn (_ref = doc.tags) != null ? typeof _ref.forEach === \"function\" ? _ref.forEach(function(tag) {\n   return emit(tag, null);\n    }) : void 0 : void 0;\n}",
               reduce: "function(key, values) {\n    return true;\n}"
+            }
+          });
+        }
+      };
+    })(this));
+    return db.get('_design/all', (function(_this) {
+      return function(err, doc) {
+        if (err && err.error === "not_found") {
+          return db.save('_design/all', {
+            byDocType: {
+              map: "function(doc) {\n    if(doc.docType) {\n        return emit(doc.docType.toLowerCase(), doc);\n    }\n}"
             }
           });
         }

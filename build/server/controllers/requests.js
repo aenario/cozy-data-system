@@ -53,7 +53,17 @@ module.exports.tags = function(req, res, next) {
 
 module.exports.results = function(req, res, next) {
   return request.get(req.appName, req.params, function(path) {
-    return db.view(("" + req.params.type + "/") + path, req.body, function(err, docs) {
+    var params;
+    if (path === 'all') {
+      path = 'all/byDocType';
+      params = {
+        key: req.params.type
+      };
+    } else {
+      path = ("" + req.params.type + "/") + path;
+      params = req.body;
+    }
+    return db.view(path, params, function(err, docs) {
       if (err != null) {
         if (err.error === "not_found") {
           err = new Error("not found");
@@ -121,50 +131,70 @@ module.exports.removeResults = function(req, res, next) {
     });
   };
   return request.get(req.appName, req.params, function(path) {
-    viewName = "" + req.params.type + "/" + path;
+    if (path === 'all') {
+      viewName = 'all/byDocType';
+      options = {
+        key: req.params.type
+      };
+      options.limit = 100;
+    } else {
+      viewName = ("" + req.params.type + "/") + path;
+    }
     return delFunc();
   });
 };
 
 module.exports.definition = function(req, res, next) {
   return db.get("_design/" + req.params.type, function(err, docs) {
-    var design_doc, views;
-    if ((err != null) && err.error === 'not_found') {
-      design_doc = {};
-      design_doc[req.params.req_name] = req.body;
-      return db.save("_design/" + req.params.type, design_doc, function(err, response) {
-        if (err) {
-          console.log("[Definition] err: " + JSON.stringify(err));
-          return next(new Error(err.error));
-        } else {
-          res.send(200, {
-            success: true
-          });
-          return next();
-        }
-      });
-    } else if (err != null) {
-      next(new Error(err.error));
-      return next();
-    } else {
+    var views;
+    if ((docs != null ? docs.views : void 0) != null) {
       views = docs.views;
-      return request.create(req.appName, req.params, views, req.body, function(err, path) {
-        views[path] = req.body;
-        return db.merge("_design/" + req.params.type, {
-          views: views
-        }, function(err, response) {
-          if (err != null) {
-            console.log("[Definition] err: " + JSON.stringify(err));
-            return next(new Error(err.error));
-          } else {
-            res.send(200, {
-              success: true
-            });
-            return next();
-          }
-        });
-      });
+    } else {
+      views = {};
     }
+    return request.create(req.appName, req.params, views, req.body, function(error, path) {
+      var design_doc;
+      if (path === "all") {
+        res.send(200, {
+          success: true
+        });
+        return next();
+      } else {
+        if ((err != null) && err.error === 'not_found') {
+          design_doc = {};
+          design_doc[req.params.req_name] = req.body;
+          return db.save("_design/" + req.params.type, design_doc, function(err, response) {
+            if (err) {
+              console.log("[Definition] err: " + JSON.stringify(err));
+              return next(new Error(err.error));
+            } else {
+              res.send(200, {
+                success: true
+              });
+              return next();
+            }
+          });
+        } else if (err != null) {
+          next(new Error(err.error));
+          return next();
+        } else {
+          views[path] = req.body;
+          return db.merge("_design/" + req.params.type, {
+            views: views
+          }, function(err, response) {
+            if (err != null) {
+              console.log("[Definition] err: " + JSON.stringify(err));
+              return next(new Error(err.error));
+            } else {
+              res.send(200, {
+                success: true
+              });
+              return next();
+            }
+          });
+        }
+      }
+    });
   });
 };
 
