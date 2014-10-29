@@ -25,6 +25,20 @@ classicView = (docType) ->
                 }"""
     return JSON.stringify view
 
+# Return classic view to retrieve all document with docType equal to <docType>
+otherClassicView = (docType) ->
+    view =
+        "map":
+            """function (doc) {
+                  if (doc.docType === "#{docType}") {
+                    filter = function (doc) {
+                      return emit(doc._id, doc);
+                    };
+                    filter(doc);
+                  }
+                }"""
+    return JSON.stringify view
+
 ## function create (app, req, views, newView, callback)
 ## @app {String} application name
 ## @req {Object} contains type and request name
@@ -162,6 +176,17 @@ module.exports.init = (callback) =>
                             (err, response) ->
                                 if err?
                                     console.log "[Definition] err: " + err.message
+                                removeEmptyView(doc)
+                        else
+                            allView = otherClassicView(type)
+                            allView.replace '\\', ''
+                            allView.replace '"', "'"
+                            if body.toLowerCase() is allView.toLowerCase()
+                                delete doc.views[view]
+                                db.merge doc._id, views: doc.views, \
+                                (err, response) ->
+                                    if err?
+                                        console.log "[Definition] err: " + err.message
                                 removeEmptyView(doc)
                 removeEmptyView(doc)
             callback null

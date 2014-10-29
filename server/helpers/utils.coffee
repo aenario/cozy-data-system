@@ -32,18 +32,36 @@ recoverDesignDocs = (callback) =>
     db.all filterRange, (err, res) =>
         recoverDocs res, [], callback
 
+updateViews = (type, views, callback) ->
+    if views.length > 0
+        view = views.pop()
+        log.info "Update view #{type}/#{view}"
+        db.view "#{type}/#{view}", {}, (err, res, body) ->
+            log.error err if err?
+            updateViews type, views, callback
+    else
+        callback()
+
+
+
+updateDocs = (docs) ->
+    if docs.length > 0
+        doc = docs.pop()
+        type = doc._id.substr 8, doc._id.length-1
+        updateViews type, Object.keys(doc.views), () ->
+            updateDocs(docs)
+
+
 indexAllView = () ->
     log.info "Update all views ...."
     recoverDesignDocs (docs) =>
+        updateDocs(docs)
         for doc in docs
             for view, body of doc.views
                 type = doc._id.substr 8, doc._id.length-1
                 log.info "Update view #{type}/#{view}"
                 db.view "#{type}/#{view}", {}, (err, res, body) ->
                     log.error err if err?
-
-
-
 
 # Delete files on the file system
 module.exports.deleteFiles = (files) ->
@@ -69,7 +87,7 @@ module.exports.checkPermissions = (req, permission, next) ->
 module.exports.incrementCount = (next) ->
     count += 1
     if count > 100
-        indexAllView()
         count = 0
+        indexAllView()
     next()
 
