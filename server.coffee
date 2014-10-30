@@ -1,9 +1,3 @@
-require('nodetime').profile(
-    accountKey: '00661417eb0e61cf6d2ca140ccc8417cfdb15421',
-    appName: 'Node.js Application'
-)
-require 'v8-profiler'
-
 application = module.exports = (callback) ->
 
     americano = require 'americano'
