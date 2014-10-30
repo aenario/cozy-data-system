@@ -181,6 +181,8 @@ module.exports.init = (callback) =>
                             allView = otherClassicView(type)
                             allView.replace '\\', ''
                             allView.replace '"', "'"
+                            allView.replace ' ', ''
+                            body.replace ' ', ''
                             if body.toLowerCase() is allView.toLowerCase()
                                 delete doc.views[view]
                                 db.merge doc._id, views: doc.views, \

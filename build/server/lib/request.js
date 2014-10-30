@@ -188,6 +188,8 @@ module.exports.init = (function(_this) {
                 allView = otherClassicView(type);
                 allView.replace('\\', '');
                 allView.replace('"', "'");
+                allView.replace(' ', '');
+                body.replace(' ', '');
                 if (body.toLowerCase() === allView.toLowerCase()) {
                   delete doc.views[view];
                   db.merge(doc._id, {
