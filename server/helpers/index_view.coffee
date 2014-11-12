@@ -24,7 +24,7 @@ updateViews = (type, views, callback) ->
     if views.length > 0
         view = views.pop()
         log.info "Update view #{type}/#{view}"
-        db.view "#{type}/#{view}", {}, (err, res, body) ->
+        db.view "#{type}/#{view}", {limit: 1}, (err, res, body) ->
             log.error err if err?
             updateViews type, views, callback
     else
