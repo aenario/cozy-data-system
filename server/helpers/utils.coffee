@@ -6,7 +6,7 @@ db = require('../helpers/db_connect_helper').db_connect()
 log = require('printit')()
 count = 0
 
-
+child = null
 
 # Delete files on the file system
 module.exports.deleteFiles = (files) ->
@@ -29,14 +29,19 @@ module.exports.checkPermissions = (req, permission, next) ->
             req.appName = appName
             next()
 
-module.exports.incrementCount = (next) ->
+module.exports.incrementCount = (req, res, next) ->
     count += 1
-    if count > 100
+    waitReindexing = !!req.query.waitReindexing
+    if count > 100 and not child
+        console.log "Reindexing, count was = ", count
         count = 0
         child = fork(__dirname + "/index_view")
         child.on 'message', (m) ->
             console.log 'received: ' + m
         child.on 'close', (code) ->
             console.log "process close with code #{code}"
-    next()
+            child = null
+            next() if waitReindexing
+
+    next() unless waitReindexing
 
