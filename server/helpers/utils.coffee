@@ -33,7 +33,7 @@ module.exports.incrementCount = (next) ->
     count += 1
     if count > 100
         count = 0
-        child = fork(__dirname + "/index_view.coffee")
+        child = fork(__dirname + "/index_view")
         child.on 'message', (m) ->
             console.log 'received: ' + m
         child.on 'close', (code) ->

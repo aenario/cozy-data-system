@@ -38,7 +38,9 @@ updateViews = function(type, views, callback) {
   if (views.length > 0) {
     view = views.pop();
     log.info("Update view " + type + "/" + view);
-    return db.view("" + type + "/" + view, {}, function(err, res, body) {
+    return db.view("" + type + "/" + view, {
+      limit: 1
+    }, function(err, res, body) {
       if (err != null) {
         log.error(err);
       }
