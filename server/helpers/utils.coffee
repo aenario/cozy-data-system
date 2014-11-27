@@ -29,9 +29,9 @@ module.exports.checkPermissions = (req, permission, next) ->
             req.appName = appName
             next()
 
-module.exports.incrementCount = (req, res, next) ->
+module.exports.incrementCount = (req, next) ->
     count += 1
-    waitReindexing = !!req.query.waitReindexing
+    waitReindexing = !!req.query?.waitReindexing
     if count > 100 and not child
         console.log "Reindexing, count was = ", count
         count = 0

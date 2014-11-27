@@ -59,4 +59,4 @@ module.exports.checkPermissionsByType = (req, res, next) ->
     checkPermissions req, req.params.type, next
 
 module.exports.incrementCount = (req, res, next) ->
-    incrementCount next
+    incrementCount req, next

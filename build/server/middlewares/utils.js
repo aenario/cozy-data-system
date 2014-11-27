@@ -67,5 +67,5 @@ module.exports.checkPermissionsByType = function(req, res, next) {
 };
 
 module.exports.incrementCount = function(req, res, next) {
-  return incrementCount(next);
+  return incrementCount(req, next);
 };
